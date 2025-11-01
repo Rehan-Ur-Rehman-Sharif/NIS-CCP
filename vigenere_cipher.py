@@ -87,11 +87,20 @@ class VigenereCipher:
 
 if __name__ == "__main__":
     # Example usage
-    key = "SECRETKEY"
+    key = input("Enter cipher key (at least one alphabetical character): ").strip()
+    key_alpha = ''.join(filter(str.isalpha, key))
+    while len(key_alpha) == 0:
+        print("Error: Key must contain at least one alphabetical character.")
+        key = input("Enter cipher key (at least one alphabetical character): ").strip()
+        key_alpha = ''.join(filter(str.isalpha, key))
     cipher = VigenereCipher(key)
     
-    plaintext = "HELLOWORLD"
-    print(f"Original: {plaintext}")
+    plaintext = input("Enter plaintext to encrypt: ").strip()
+    while len(plaintext) == 0:
+        print("Error: Plaintext cannot be empty.")
+        plaintext = input("Enter plaintext to encrypt: ").strip()
+    
+    print(f"\nOriginal: {plaintext}")
     
     encrypted = cipher.encrypt(plaintext)
     print(f"Encrypted: {encrypted}")
