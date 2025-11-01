@@ -523,9 +523,21 @@ def demo_custom_cipher_breaking():
     print("\n--- Test 1: Known Plaintext Attack ---")
     print("Scenario: Intercepted encrypted message with known header/footer\n")
     
-    custom_key = "SECRETKEYWORD"
+    # Get user inputs
+    custom_key = input("Enter cipher key (minimum 10 alphabetical characters): ").strip()
+    # Filter to only alphabetical characters for validation
+    alpha_key = ''.join(filter(str.isalpha, custom_key))
+    while len(alpha_key) < 10:
+        print(f"Error: Key must contain at least 10 alphabetical characters (currently has {len(alpha_key)}).")
+        custom_key = input("Enter cipher key (minimum 10 alphabetical characters): ").strip()
+        alpha_key = ''.join(filter(str.isalpha, custom_key))
+    
+    custom_plaintext = input("Enter plaintext to encrypt: ").strip()
+    while len(custom_plaintext) == 0:
+        print("Error: Plaintext cannot be empty.")
+        custom_plaintext = input("Enter plaintext to encrypt: ").strip()
+    
     custom_cipher = CustomCipher(custom_key)
-    custom_plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"
     custom_ciphertext = custom_cipher.encrypt(custom_plaintext)
     
     print(f"Original Key:     {custom_key}")
@@ -556,7 +568,10 @@ def demo_custom_cipher_breaking():
     print("--- Test 2: Frequency Analysis Attack ---")
     print("Scenario: Ciphertext-only attack using statistical analysis\n")
     
-    longer_plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" * 3
+    # Use the user's plaintext repeated to create a longer sample for frequency analysis
+    # Frequency analysis requires longer text samples (100+ characters) to be effective
+    repetitions = max(3, (100 // len(custom_plaintext)) + 1)
+    longer_plaintext = custom_plaintext * repetitions
     longer_ciphertext = custom_cipher.encrypt(longer_plaintext)
     
     print(f"Original Key:     {custom_key}")
