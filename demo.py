@@ -12,7 +12,7 @@ from custom_cipher import CustomCipher
 from vigenere_cipher import VigenereCipher
 from playfair_cipher import PlayfairCipher
 from caesar_cipher import CaesarCipher
-from cipher_breaker import VigenereBreaker, KnownPlaintextAttack
+from cipher_breaker import CustomCipherBreaker, KnownPlaintextAttack
 
 
 def print_header(title):
@@ -112,33 +112,55 @@ def demo_caesar_cipher():
     print(f"Match:      {plaintext == decrypted}")
 
 
-def demo_vigenere_breaking():
-    """Demonstrate Vigenere cipher breaking with frequency analysis."""
-    print_header("VIGENERE CIPHER BREAKING - Frequency Analysis")
+def demo_custom_cipher_breaking():
+    """Demonstrate custom cipher breaking with known plaintext and frequency analysis."""
+    print_header("CUSTOM CIPHER BREAKING (Vigenere + Playfair)")
     
-    key = "CIPHER"
-    cipher = VigenereCipher(key)
+    # Test 1: Known Plaintext Attack
+    print("\n--- Known Plaintext Attack ---")
+    print("Scenario: Intercepted message with known content\n")
     
-    # Use longer text for better frequency analysis
-    plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" * 10
+    key = "SECRETKEYWORD"
+    cipher = CustomCipher(key)
+    plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"
     ciphertext = cipher.encrypt(plaintext)
     
-    print(f"Original Key: {key}")
-    print(f"Plaintext length: {len(plaintext)} characters")
-    print(f"Plaintext (first 50 chars): {plaintext[:50]}...")
-    print(f"\nAttempting to break cipher using frequency analysis...")
+    print(f"Original Key:    {key}")
+    print(f"Known Plaintext: {plaintext}")
+    print(f"Ciphertext:      {ciphertext}")
+    print(f"\nAttempting dictionary-based known plaintext attack...")
     
-    recovered_key, decrypted = VigenereBreaker.break_with_frequency(ciphertext)
+    recovered_key = KnownPlaintextAttack.break_custom_cipher(plaintext, ciphertext, 10, 15)
     
-    print(f"\nRecovered Key: {recovered_key}")
-    print(f"Decrypted (first 50 chars): {decrypted[:50]}...")
-    print(f"Success: {recovered_key == key}")
+    if recovered_key:
+        print(f"\n✓ Recovered Key: {recovered_key}")
+        print(f"✓ Success: {recovered_key == key}")
+        
+        # Verify
+        verify_cipher = CustomCipher(recovered_key)
+        if verify_cipher.encrypt(plaintext) == ciphertext:
+            print("✓ Verification: Key produces correct ciphertext")
+    else:
+        print("\n✗ Could not recover key")
     
-    # Show key length detection
-    estimated_length = VigenereBreaker.find_key_length(ciphertext)
-    print(f"\nKey Length Detection:")
-    print(f"  Actual length: {len(key)}")
-    print(f"  Estimated length: {estimated_length}")
+    # Test 2: Frequency Analysis (if time permits)
+    print("\n--- Frequency Analysis Attack ---")
+    print("Scenario: Ciphertext-only attack\n")
+    
+    longer_text = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" * 3
+    longer_ciphertext = cipher.encrypt(longer_text)
+    
+    print(f"Ciphertext length: {len(longer_ciphertext)} characters")
+    print(f"Attempting frequency analysis...")
+    
+    freq_key, decrypted = CustomCipherBreaker.break_with_frequency(longer_ciphertext, 10, 15)
+    
+    if freq_key:
+        print(f"\n⚠ Potential key found: {freq_key}")
+        print(f"  Match with original: {freq_key == key}")
+    else:
+        print("\n✗ Frequency analysis unsuccessful")
+        print("  (Custom cipher's dual encryption is resistant to this attack)")
 
 
 def demo_known_plaintext_attack():
@@ -232,7 +254,7 @@ def main():
     demo_caesar_cipher()
     
     # Demo cipher breaking
-    demo_vigenere_breaking()
+    demo_custom_cipher_breaking()
     demo_known_plaintext_attack()
     
     # Demo complexity

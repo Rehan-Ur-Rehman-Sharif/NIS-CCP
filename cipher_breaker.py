@@ -509,81 +509,97 @@ class KnownPlaintextAttack:
         return list(set(candidates))
 
 
-if __name__ == "__main__":
-    print("=== Vigenere Cipher Breaking Demo ===\n")
+def demo_custom_cipher_breaking():
+    """
+    Demonstration function for custom cipher breaking methods.
+    Shows both known plaintext attack and frequency analysis.
+    """
+    print("\n" + "="*70)
+    print("  CUSTOM CIPHER BREAKING DEMONSTRATION")
+    print("  Attacks on 2-Stage Cipher (Vigenere + Playfair)")
+    print("="*70)
     
-    # Test Vigenere frequency analysis
-    key = "SECRETKEY"
-    vigenere = VigenereCipher(key)
-    plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" * 5
-    ciphertext = vigenere.encrypt(plaintext)
+    # Test 1: Known Plaintext Attack
+    print("\n--- Test 1: Known Plaintext Attack ---")
+    print("Scenario: Intercepted encrypted message with known header/footer\n")
     
-    print(f"Original key: {key}")
-    print(f"Ciphertext length: {len(ciphertext)}")
-    
-    recovered_key, decrypted = VigenereBreaker.break_with_frequency(ciphertext)
-    print(f"Recovered key: {recovered_key}")
-    print(f"Original text: {plaintext[:50]}...")
-    print(f"Decrypted text: {decrypted[:50]}...")
-    print(f"Match: {plaintext == decrypted}\n")
-    
-    print("=== Known Plaintext Attack on Vigenere ===\n")
-    
-    # Test known plaintext attack
-    known_plain = "HELLOWORLD"
-    known_cipher = vigenere.encrypt(known_plain)
-    
-    recovered_key_kpa = KnownPlaintextAttack.break_vigenere(known_plain, known_cipher)
-    print(f"Original key: {key}")
-    print(f"Recovered key (KPA): {recovered_key_kpa}")
-    
-    # Test if recovered key works
-    test_cipher = VigenereCipher(recovered_key_kpa)
-    test_encrypted = test_cipher.encrypt(plaintext)
-    test_match = test_encrypted == vigenere.encrypt(plaintext)
-    print(f"Recovered key works: {test_match}\n")
-    
-    print("=== Custom Cipher Breaking Demo ===\n")
-    print("Testing attacks on Custom Cipher (Vigenere + Playfair)\n")
-    
-    # Test 1: Known Plaintext Attack on Custom Cipher
-    print("--- Test 1: Known Plaintext Attack ---")
     custom_key = "SECRETKEYWORD"
     custom_cipher = CustomCipher(custom_key)
-    custom_plaintext = "THEQUICKBROWNFOX"
+    custom_plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"
     custom_ciphertext = custom_cipher.encrypt(custom_plaintext)
     
-    print(f"Original key: {custom_key}")
-    print(f"Plaintext: {custom_plaintext}")
-    print(f"Ciphertext: {custom_ciphertext}")
+    print(f"Original Key:     {custom_key}")
+    print(f"Known Plaintext:  {custom_plaintext}")
+    print(f"Ciphertext:       {custom_ciphertext}")
+    print(f"Cipher Structure: Plaintext → Vigenere → Playfair → Ciphertext")
+    print()
     
     recovered_custom_key = KnownPlaintextAttack.break_custom_cipher(
-        custom_plaintext, custom_ciphertext
+        custom_plaintext, custom_ciphertext, 10, 15
     )
     
     if recovered_custom_key:
-        print(f"\nRecovered key: {recovered_custom_key}")
+        print(f"\n✓ SUCCESS! Recovered key: {recovered_custom_key}")
         # Verify it works
         verify_cipher = CustomCipher(recovered_custom_key)
         verify_enc = verify_cipher.encrypt(custom_plaintext)
-        print(f"Verification: {verify_enc == custom_ciphertext}")
+        if verify_enc == custom_ciphertext:
+            print("✓ Verification: Key produces correct ciphertext")
+            print(f"✓ Attack successfully broke through both encryption layers")
+        else:
+            print("✗ Verification failed")
+    else:
+        print("\n✗ Could not recover key")
     
-    print("\n--- Test 2: Frequency Analysis Attack ---")
+    # Test 2: Frequency Analysis Attack
+    print("\n" + "-"*70)
+    print("--- Test 2: Frequency Analysis Attack ---")
+    print("Scenario: Ciphertext-only attack using statistical analysis\n")
+    
     longer_plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" * 3
     longer_ciphertext = custom_cipher.encrypt(longer_plaintext)
     
-    print(f"Attempting frequency analysis with {len(longer_ciphertext)} characters...")
+    print(f"Original Key:     {custom_key}")
+    print(f"Ciphertext Length: {len(longer_ciphertext)} characters")
+    print(f"Ciphertext:       {longer_ciphertext[:50]}...")
+    print()
+    
     recovered_freq_key, decrypted_freq = CustomCipherBreaker.break_with_frequency(
-        longer_ciphertext
+        longer_ciphertext, 10, 15
     )
     
     if recovered_freq_key:
-        print(f"Success! Key: {recovered_freq_key}")
+        if recovered_freq_key == custom_key:
+            print(f"\n✓ EXACT KEY FOUND! Recovered: {recovered_freq_key}")
+        else:
+            print(f"\n⚠ Potential key found: {recovered_freq_key}")
+            print(f"  (Statistical analysis suggests English-like plaintext)")
+    else:
+        print("\n✗ Frequency analysis could not recover key")
+        print("  (Custom cipher's dual encryption resists this attack)")
     
-    print("\n--- Summary ---")
-    print("Custom cipher (Vigenere + Playfair) is significantly harder to break")
-    print("than individual Vigenere or Playfair ciphers due to:")
-    print("1. Two layers of encryption obscure statistical patterns")
-    print("2. Playfair digraph substitution adds complexity")
-    print("3. Requires larger plaintext samples or known plaintext for attacks")
-    print("\nKnown plaintext attack is most effective against this cipher.")
+    # Summary
+    print("\n" + "="*70)
+    print("  SUMMARY")
+    print("="*70)
+    print("\nCustom Cipher Security Analysis:")
+    print("✓ Significantly harder to break than individual Vigenere or Playfair")
+    print("✓ Two-layer encryption obscures statistical patterns")
+    print("✓ Playfair digraph substitution adds complexity")
+    print()
+    print("Attack Effectiveness:")
+    print("• Known Plaintext Attack: ✓ HIGHLY EFFECTIVE")
+    print("  - Requires plaintext-ciphertext pairs")
+    print("  - Dictionary-based key recovery")
+    print("  - Successfully breaks through both layers")
+    print()
+    print("• Frequency Analysis: ⚠ MODERATELY EFFECTIVE")
+    print("  - Ciphertext-only attack")
+    print("  - Requires longer samples (100+ chars)")
+    print("  - May identify candidate keys but not guarantee exact match")
+    print("="*70 + "\n")
+
+
+if __name__ == "__main__":
+    # Run the custom cipher breaking demonstration
+    demo_custom_cipher_breaking()
