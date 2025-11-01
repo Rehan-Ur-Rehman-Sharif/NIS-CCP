@@ -115,11 +115,19 @@ class CaesarCipher:
 
 if __name__ == "__main__":
     # Example usage
-    shift = 3
+    shift_input = input("Enter shift value (0-25): ").strip()
+    while not shift_input.isdigit() or not (0 <= int(shift_input) <= 25):
+        print("Error: Shift must be a number between 0 and 25.")
+        shift_input = input("Enter shift value (0-25): ").strip()
+    shift = int(shift_input)
     cipher = CaesarCipher(shift)
     
-    plaintext = "HELLOWORLD"
-    print(f"Original: {plaintext}")
+    plaintext = input("Enter plaintext to encrypt: ").strip()
+    while len(plaintext) == 0:
+        print("Error: Plaintext cannot be empty.")
+        plaintext = input("Enter plaintext to encrypt: ").strip()
+    
+    print(f"\nOriginal: {plaintext}")
     print(f"Shift: {shift}")
     
     encrypted = cipher.encrypt(plaintext)

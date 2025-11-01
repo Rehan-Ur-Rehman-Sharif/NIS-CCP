@@ -95,11 +95,20 @@ class CustomCipher:
 
 if __name__ == "__main__":
     # Example usage
-    key = "MYSECRETKEYWITHATLEASTTENCHARS"
+    key = input("Enter cipher key (minimum 10 alphabetical characters): ").strip()
+    key_alpha = ''.join(filter(str.isalpha, key))
+    while len(key_alpha) < 10:
+        print(f"Error: Key must contain at least 10 alphabetical characters (currently has {len(key_alpha)}).")
+        key = input("Enter cipher key (minimum 10 alphabetical characters): ").strip()
+        key_alpha = ''.join(filter(str.isalpha, key))
     cipher = CustomCipher(key)
     
-    plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"
-    print(f"Original: {plaintext}")
+    plaintext = input("Enter plaintext to encrypt: ").strip()
+    while len(plaintext) == 0:
+        print("Error: Plaintext cannot be empty.")
+        plaintext = input("Enter plaintext to encrypt: ").strip()
+    
+    print(f"\nOriginal: {plaintext}")
     
     encrypted = cipher.encrypt(plaintext)
     print(f"Encrypted: {encrypted}")
