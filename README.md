@@ -2,7 +2,7 @@
 Computing Project for Network Information Security (NIS)
 
 Team Members:
-<br>Rehan Ur Rehman Sharif | CT-84 | <br>Maha Jameel | CT-55 | <br>Fukeyha Rizwan | CT-65 | 
+<br>| CT-84 | Rehan Ur Rehman Sharif<br>| CT-55 | Maha Jameel<br>| CT-65 | Fukeyha Rizwan 
 
 ## Custom Cipher Implementation
 
