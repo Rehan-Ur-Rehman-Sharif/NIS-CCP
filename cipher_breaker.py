@@ -260,12 +260,17 @@ class KnownPlaintextAttack:
         # For custom cipher: plaintext -> Vigenere -> Playfair -> ciphertext
         # We need to work backwards through the Playfair to get Vigenere output
         
-        # Try different key lengths
-        for key_len in range(min_key_length, min(30, len(plaintext))):
-            # Try to find a key that works
-            # This is computationally intensive for custom cipher
-            # A simplified approach: try common keys or dictionary words
-            pass
+        # Note: This is a placeholder for future implementation
+        # Breaking the custom cipher is significantly more complex due to:
+        # 1. Two layers of encryption (Vigenere + Playfair)
+        # 2. Playfair's digraph substitution obscures frequency patterns
+        # 3. Requires larger samples and more sophisticated cryptanalysis
+        
+        # Potential approaches for future implementation:
+        # - Dictionary attack with common keys
+        # - Brute force for shorter keys (computationally expensive)
+        # - Hybrid approach: break Playfair layer first, then Vigenere
+        # - Require significantly larger plaintext samples for statistical analysis
         
         print("Breaking custom cipher requires more sophisticated techniques")
         print("Consider: 1) Larger plaintext sample, 2) Dictionary attack, 3) Brute force for key")
