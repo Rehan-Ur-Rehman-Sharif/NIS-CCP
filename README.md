@@ -1,6 +1,11 @@
 # NIS-CCP
 Computing Project for Network Information Security (NIS)
 
+Team Members:
+CT-84 | Rehan Ur Rehman Sharif
+CT-55 | Maha Jameel
+CT-65 | Fukeyha Rizwan
+
 ## Custom Cipher Implementation
 
 This project implements a custom cipher combining **Vigenere** and **Playfair** ciphers with 2-stage encryption, along with cipher breaking methods and comprehensive time complexity analysis.
