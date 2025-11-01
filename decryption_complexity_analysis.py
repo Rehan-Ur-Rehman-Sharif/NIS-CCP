@@ -4,6 +4,7 @@ Analyzes and compares time complexity of different cipher decryption algorithms.
 """
 
 import time
+import os
 try:
     import matplotlib.pyplot as plt
     HAS_MATPLOTLIB = True
@@ -155,8 +156,9 @@ def main():
             plt.legend()
             plt.grid(True, alpha=0.3)
             plt.tight_layout()
-            plt.savefig('/tmp/decryption_complexity.png', dpi=300)
-            print("Graph saved to /tmp/decryption_complexity.png")
+            output_path = 'decryption_complexity.png'
+            plt.savefig(output_path, dpi=300)
+            print(f"Graph saved to {output_path}")
         except Exception as e:
             print(f"Could not generate graph: {e}")
     else:
