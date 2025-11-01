@@ -2,7 +2,7 @@
 Computing Project for Network Information Security (NIS)
 
 Team Members:
-Rehan Ur Rehman Sharif | CT-84 | Maha Jameel | CT-55 | Fukeyha Rizwan | CT-65 | 
+<br>Rehan Ur Rehman Sharif | CT-84 | <br>Maha Jameel | CT-55 | <br>Fukeyha Rizwan | CT-65 | 
 
 ## Custom Cipher Implementation
 
@@ -10,12 +10,12 @@ This project implements a custom cipher combining **Vigenere** and **Playfair** 
 
 ### Features
 
-✅ **2-Stage Custom Cipher**: Vigenere → Playfair encryption
-✅ **Minimum 10-character key** requirement
-✅ **Handles varying length alphabetical inputs**
-✅ **Cipher Breaking Methods**: Frequency analysis and known plaintext attacks
-✅ **Time Complexity Analysis**: O(n) encryption and decryption
-✅ **Caesar Cipher Comparison**: Baseline for complexity analysis
+<br> **2-Stage Custom Cipher**: Vigenere → Playfair encryption
+<br> **Minimum 10-character key** requirement
+<br> **Handles varying length alphabetical inputs**
+<br> **Cipher Breaking Methods**: Frequency analysis and known plaintext attacks
+<br> **Time Complexity Analysis**: O(n) encryption and decryption
+<br> **Caesar Cipher Comparison**: Baseline for complexity analysis
 
 ### Quick Start
 
