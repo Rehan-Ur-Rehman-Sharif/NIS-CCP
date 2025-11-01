@@ -1,10 +1,10 @@
 # NIS-CCP
 Computing Project for Network Information Security (NIS)
 
-Team Members:
-CT-84 | Rehan Ur Rehman Sharif
-CT-55 | Maha Jameel
-CT-65 | Fukeyha Rizwan
+Team Members: \n
+CT-84 | Rehan Ur Rehman Sharif \n
+CT-55 | Maha Jameel \n
+CT-65 | Fukeyha Rizwan \n
 
 ## Custom Cipher Implementation
 
