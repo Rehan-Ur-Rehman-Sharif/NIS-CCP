@@ -533,14 +533,14 @@ def demo_custom_cipher_breaking():
         alpha_key = ''.join(filter(str.isalpha, custom_key))
     
     custom_plaintext = input("Enter plaintext to encrypt: ").strip()
-    plaintext_alpha = ''.join(filter(str.isalpha, custom_plaintext))
-    while len(custom_plaintext) == 0 or len(plaintext_alpha) == 0:
+    custom_plaintext_alpha = ''.join(filter(str.isalpha, custom_plaintext))
+    while len(custom_plaintext) == 0 or len(custom_plaintext_alpha) == 0:
         if len(custom_plaintext) == 0:
             print("Error: Plaintext cannot be empty.")
         else:
             print("Error: Plaintext must contain at least one alphabetical character.")
         custom_plaintext = input("Enter plaintext to encrypt: ").strip()
-        plaintext_alpha = ''.join(filter(str.isalpha, custom_plaintext))
+        custom_plaintext_alpha = ''.join(filter(str.isalpha, custom_plaintext))
     
     custom_cipher = CustomCipher(custom_key)
     custom_ciphertext = custom_cipher.encrypt(custom_plaintext)
@@ -576,11 +576,8 @@ def demo_custom_cipher_breaking():
     # Use the user's plaintext repeated to create a longer sample for frequency analysis
     # Frequency analysis requires longer text samples to be effective
     MIN_FREQUENCY_ANALYSIS_LENGTH = 100
-    plaintext_alpha_len = len(''.join(filter(str.isalpha, custom_plaintext)))
-    if plaintext_alpha_len > 0:
-        repetitions = max(3, (MIN_FREQUENCY_ANALYSIS_LENGTH // plaintext_alpha_len) + 1)
-    else:
-        repetitions = 3
+    # Reuse the filtered plaintext length from validation above
+    repetitions = max(3, (MIN_FREQUENCY_ANALYSIS_LENGTH // len(custom_plaintext_alpha)) + 1)
     longer_plaintext = custom_plaintext * repetitions
     longer_ciphertext = custom_cipher.encrypt(longer_plaintext)
     
